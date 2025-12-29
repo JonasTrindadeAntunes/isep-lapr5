@@ -53,7 +53,7 @@ evoluir para um sistema automático.
 Para a execução do pedido o sistema irá planear o percurso 
 que o dispositivo (drone ou robot) deve executar. Por exemplo:
 
--para ir de uma dada sala/gabinete do piso J2 (segundo piso do edifício J) para uma sala/gabinete do piso G4 (4º piso 
+- para ir de uma dada sala/gabinete do piso J2 (segundo piso do edifício J) para uma sala/gabinete do piso G4 (4º piso 
 do edifício G) o caminho poderá ser: partir da sala/gabinete do 2º piso do edifício J para ir através 
 do corredor para o 2º piso do edifício I; usar o corredor do 2º piso do edifício I para ir para o 2º 
 piso do edifício H; usar o corredor do 2º piso do edifício H para ir para o 2º piso do edifício G; 
