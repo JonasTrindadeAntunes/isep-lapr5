@@ -1,0 +1,34 @@
+@startuml
+autonumber
+
+actor "Fleet Manager" as usr
+
+participant "FE" as ui
+
+participant "MD" as md
+
+activate usr
+    usr -> ui : wants to create robot type
+    activate ui
+        ui --> usr : requests data
+    deactivate ui
+
+    usr -> ui : provides data
+    activate ui
+        ui -> md : POST /robottypes
+
+        activate md
+        note right of md : see us350 documentation
+        alt success
+            md --> ui : 201: robotType
+            ui --> usr : previews created robot type
+        else error creating robot type
+            md --> ui : 422: error
+            ui --> usr : informs error
+        end
+        deactivate md
+
+    deactivate ui
+deactivate usr
+
+@enduml

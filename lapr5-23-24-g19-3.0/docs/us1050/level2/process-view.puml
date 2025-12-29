@@ -1,0 +1,34 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "Front-end" as ui
+
+participant "MD" as md
+
+activate usr
+    usr -> ui : wants to create building
+    activate ui
+        ui --> usr : request data
+    deactivate ui
+
+    usr -> ui : provides data
+    activate ui
+        ui -> md : POST /buildings
+        activate md
+            note right of md : see US 150 documentation
+
+            alt building not created
+                md --> ui : 422: error
+                ui --> usr : informs error
+            else success
+                md --> ui : 201: building
+                ui --> usr : shows created building
+            end
+        deactivate md
+
+    deactivate ui
+deactivate usr
+
+@enduml

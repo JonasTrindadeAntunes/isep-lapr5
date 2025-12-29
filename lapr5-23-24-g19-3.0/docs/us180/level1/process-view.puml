@@ -1,0 +1,13 @@
+@startuml
+autonumber
+
+participant "<<system>>\nSystem RobDroneGo" as sys
+
+ [-> sys: GET /buildings/?minFloors={min}&maxFloors={max}
+
+activate sys
+        [<--sys : response code: 200
+deactivate sys
+
+
+@enduml

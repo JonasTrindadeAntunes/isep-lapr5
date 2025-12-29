@@ -1,0 +1,52 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "FE" as ui
+participant "MD" as md
+
+activate usr
+    usr -> ui : list building floors with passages
+    activate ui
+
+            ui -> md : GET /buildings
+            note right of md : see US 170 documentation
+            alt building(s) not found
+                activate md
+
+                    md --> ui : 404: error
+
+                ui --> usr : informs building(s) not found
+
+            else building(s) found
+                md --> ui : 200: buildings
+
+                deactivate md
+                ui --> usr : shows buildings and requests one
+        deactivate ui
+
+
+    usr -> ui : chooses building
+    activate ui
+        ui -> md : GET /buildings/{id}/floors/passages
+        note right of md : see US 220 documentation
+        alt floor(s) with passage(s) not found
+
+        activate md
+                        md --> ui: 404: error
+
+                    ui --> usr : informs passages(s) not found
+
+        else floor(s) with passage(s) found
+
+
+            md --> ui : 200: floors with passages
+        deactivate md
+
+        ui --> usr : show floors with passages
+    deactivate ui
+deactivate usr
+end
+end
+@enduml

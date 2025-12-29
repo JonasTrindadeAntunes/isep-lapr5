@@ -1,0 +1,65 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "FE" as ui
+participant "MD" as md
+
+activate usr
+    usr -> ui : wants to create room
+    activate ui
+        ui -> md : GET /buildings
+        activate md
+            note right of md : see US 170 documentation
+
+        alt building(s) not found
+            md --> ui: 404: error
+            ui --> usr: informs building(s) not found
+        else building(s) found
+            md --> ui : 200: buildings
+            deactivate md
+
+        ui --> usr : shows buildings and request one
+    deactivate ui
+
+    usr -> ui : chooses building
+    activate ui
+        ui -> md : GET /buildings/{id}/floors
+        activate md
+            note right of md : see US 210 documentation
+
+            alt floor(s) not found
+                md --> ui: 404: error
+                ui --> usr: informs floor(s) not found
+            else floor(s) found
+                md --> ui : 200: floors
+                deactivate md
+
+        ui --> usr : shows floors and request data
+    deactivate ui
+
+    usr -> ui: choose floor and provides\n room data
+    activate ui
+        ui -> md : POST (/buildings/{buildingId}/floors/{floorNumber}/rooms)
+        activate md
+            note right of md : see US 310 documentation
+
+            alt room bad parameters
+                md --> ui: 422: error
+                ui --> usr: informs error
+            else room already exists
+                 md --> ui: 422: error
+                 ui --> usr: informs error
+            else room created successfully
+                md --> ui : 201: room
+                deactivate md
+                ui --> usr : previews created room
+
+                end
+            end
+        end
+    deactivate ui
+deactivate usr
+
+@enduml

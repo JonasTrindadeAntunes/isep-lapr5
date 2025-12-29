@@ -1,0 +1,68 @@
+@startuml
+
+skinparam component {
+    FontSize 16
+    BackgroundColor<<Apache>> LightCoral
+    BorderColor<<Apache>> #FF6655
+    FontName Courier
+    BorderColor black
+    BackgroundColor White
+    ArrowFontName Impact
+    ArrowColor #FF6655
+    ArrowFontColor #777777
+}
+
+component "<<system>>\nRobDroneGo" {
+    port " " as p_campus_ui
+    port " " as p_fleet_ui
+    port " " as p_task_ui
+    port " " as p_user_ui
+    port " " as p_campus_api
+    port " " as p_fleet_api
+    port " " as p_task_api
+    port " " as p_user_api
+
+    component "Campus Management" as campus{
+    }
+    component "Fleet Management" as fleet {
+    }
+    component "Task Management" as task {
+    }
+    component "User Management" as user {
+    }
+
+    ' interior
+    [Planning] -- "Planning API"
+    task --( "Planning API"
+    task -- "Task API"
+    fleet -- "Fleet API"
+    task --( "Fleet API"
+    fleet --( "Task API"
+    user --( "User API"
+    campus -- "User API"
+    fleet -- "User API"
+    task -- "User API"
+}
+
+' exterior
+campus -- p_campus_ui
+campus -- p_campus_api
+p_campus_api -up- "Campus Management API"
+p_campus_ui -up- "Campus Management UI"
+
+fleet -- p_fleet_ui
+fleet -- p_fleet_api
+p_fleet_api -up- "Fleet Management API"
+p_fleet_ui -up- "Fleet Management UI"
+
+task -- p_task_ui
+task -- p_task_api
+p_task_api -up- "Task Management API"
+p_task_ui -up- "Task Management UI"
+
+user -- p_user_ui
+user -- p_user_api
+p_user_api -up- "User Management API"
+p_user_ui -up- "User Management UI"
+
+@enduml

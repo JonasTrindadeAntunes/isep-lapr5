@@ -1,0 +1,25 @@
+@startuml
+autonumber
+
+box "RobDroneGo"
+participant "MD" as mdr
+
+[-> mdr: PATCH/PUT  ( /buildings/{id}/floors/{floor} )
+activate mdr
+    alt  building not found
+            [<-- mdr : 404: Not Found
+        else building found
+            alt floor not found
+                [<-- mdr : 404: Not Found
+            else floor found
+                alt floor bad parameters
+                    [<-- mdr : 422: Unprocessable Content
+                else floor correct parameters
+                    [<-- mdr : 200: OK
+            end
+        end
+    end
+deactivate mdr
+
+@enduml
+

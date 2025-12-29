@@ -1,0 +1,90 @@
+@startuml
+autonumber
+
+participant "Route" as r
+participant "Controller" as ctrl
+participant "Service" as svc
+participant "Repository" as repo
+
+participant "elevator:\nElevator" as elevator
+participant "Mapper" as map
+participant "dto:\nDTO" as dto
+participant "Repository" as repo
+
+database "Database" as db
+
+
+[-> r : POST /buildings/{id}/elevators
+activate r
+
+    r -> ctrl : createElevator()
+    activate ctrl
+
+        ctrl -> svc : createElevator(dto)
+        activate svc
+
+            svc -> repo : findByCode(buildingCode)
+            activate repo
+                repo -> db : find()
+                activate db
+                    db --> repo : building
+                deactivate db
+                repo --> svc : building
+            deactivate repo
+
+            alt building not found
+                svc --> ctrl : error
+                ctrl --> r : error (404)
+                [<-- r : 404: Not found
+            else building found
+
+                svc -> repo : findFloor(building,floorNumber)
+                activate repo
+                    repo -> db: find()
+                    activate db
+                        db --> repo : floor
+                    deactivate db
+                    repo --> svc : floor
+                deactivate repo
+
+                alt floor(s) not found
+                    svc --> ctrl : error
+                    ctrl --> r : error (404)
+                    [<-- r : 404: Not found
+                else floors found
+                    svc --> elevator **: create()
+
+                    ' activate elevator
+                    ' deactivate elevator
+
+                    alt elevator not created
+                        svc --> ctrl : error
+                        ctrl --> r : error (422)
+                        [<-- r : 422: Unprocessable Content
+                    else elevator created successfully
+                        svc -> repo : save(elevator)
+                        activate repo
+                            repo -> db: save()
+                            activate db
+                            deactivate db
+                        deactivate repo
+
+                        svc -> map : toDTO(elevator)
+                        activate map
+                            map --> dto** : create(elevator)
+                            activate dto
+                                map --> svc : dto
+                            deactivate dto
+                        deactivate map
+
+                        svc --> ctrl : dto
+                        ctrl --> r : dto (201)
+                        [<-- r : 201: Created
+                    end
+                end
+            end
+        deactivate svc
+    deactivate ctrl
+deactivate r
+
+@enduml

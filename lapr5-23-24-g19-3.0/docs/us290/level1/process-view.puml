@@ -1,0 +1,25 @@
+@startuml
+autonumber
+
+
+participant "<<system>>\nSystem RobDroneGo" as sys
+
+
+[-> sys: GET /buildings/{id}/elevators
+
+    activate sys
+    alt building not found
+        [<-- sys : 404: Not Found
+    else building found
+        alt elevators not found
+            [<-- sys : 404: Not Found
+        else elevators sent
+            [<-- sys : 200: "OK" Successful
+        end
+    end
+
+
+
+deactivate sys
+
+@enduml

@@ -1,0 +1,104 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "HTML + CSS + JS" as view
+participant "Controller" as ctrl
+participant "floorService:\nFloorService" as svc
+participant "buildingService:\nBuildingService" as b_svc
+participant "dto:\nFloorAndBuildingDTO" as dto
+participant "dto:\nBuildingDTO" as b_dto
+
+participant "HTTP Driver" as http
+
+participant "MD" as md
+
+activate usr
+    usr -> view : wants to list floors from a building
+    activate view
+        view -> ctrl : ngOnInit()
+        activate ctrl
+            ctrl -> b_svc : getBuildings()
+            activate b_svc
+                b_svc -> http : get({baseUrl}/buildings)
+                activate http
+                    http ->] : GET /buildings
+                    note right : see us170 documentation
+    alt building(s) not found
+                    http <--] : 404: error
+                    http --> b_svc : observable
+                    b_svc --> ctrl : error
+                    ctrl --> ctrl : buildings = []
+                    note bottom : creates alert with the error message
+                    ctrl --> view : buildings
+                    view --> usr : informs error
+
+    else building(s) found
+                    http <--] : 200: buildings
+                    http --> b_svc : observable
+                deactivate http
+
+                loop for each building
+                    b_svc --> b_dto** : create()
+                    activate b_dto
+                        b_dto --> b_svc : dto
+                    deactivate b_dto
+                end
+
+                b_svc --> ctrl : dto[]
+            deactivate b_svc
+            ctrl --> ctrl : buildings = dto[]
+            ctrl --> view : buldings
+        deactivate ctrl
+
+
+
+
+
+        view --> usr : requests building
+    deactivate view
+
+    usr -> view : provides building
+    activate view
+        view -> ctrl : getFloors()
+        activate ctrl
+            ctrl -> svc : getFloors(selectedBuilding)
+            activate svc
+                svc -> http : get({baseUrl}/buildings/{buildingCode}/floors)
+                activate http
+                    http ->] : GET /buildings/{id}/floors
+                    note right : see us210 documentation
+    alt floor(s) not found
+                    http <--] : 404: error
+                    http --> svc : observable
+                    svc --> ctrl : error
+                    ctrl --> ctrl : floors = []
+                    note bottom : creates alert with the error message
+                    ctrl --> view : floors
+                    view --> usr : informs error
+    else floor(s) found
+                    http <--] : 200: floors
+                    http --> svc : observable
+                deactivate http
+
+                loop for each floor
+                    svc --> dto** : create()
+                    activate dto
+                        dto --> svc : dto
+                    deactivate dto
+                end
+
+                svc --> ctrl : dto[]
+            deactivate svc
+            ctrl --> ctrl : floors = dto[]
+            ctrl --> view : floors
+        deactivate ctrl
+        view --> usr : lists floors
+    deactivate view
+deactivate usr
+
+end
+end
+
+@enduml

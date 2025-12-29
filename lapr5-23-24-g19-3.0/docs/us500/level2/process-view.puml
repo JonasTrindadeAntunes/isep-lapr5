@@ -1,0 +1,38 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "SPA" as ui
+participant "MDR" as mdr
+participant "MDT" as mdt
+participant "Planning" as plan
+
+activate usr
+    usr -> ui : wants to sequence approved tasks
+    activate ui
+        ui -> mdr : GET /tasks?status=approved
+        activate mdr
+            mdr -> mdt : GET /jobs?status=approved
+            activate mdt
+                mdt --> mdr : 200: tasks
+            deactivate mdt
+            mdr --> ui : 200: tasks
+        deactivate mdr
+        ui --> usr : presents approved tasks and asks \nto select those to sequence
+    deactivate ui
+
+    usr -> ui : provides selected tasks
+    activate ui
+        ui -> mdr : PATCH /tasks/sequence
+        activate mdr
+                mdt -> plan : POST /task-sequence
+                activate plan
+                    plan --> mdt : 200: task sequence
+                deactivate plan
+            mdr --> ui : 200: tasks
+        deactivate mdr
+        ui --> usr : presents task sequence and \nassociated robot
+    deactivate ui
+deactivate usr
+@enduml

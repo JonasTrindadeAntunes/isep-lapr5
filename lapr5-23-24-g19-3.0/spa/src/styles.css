@@ -1,0 +1,76 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background-color: var(--primary-color);
+}
+:root {
+    --primary-color: #111827;
+    --secondary-color: #ffcc00;
+    --third-color: #1f2937;
+    /* --accent-color: #e8e7fa;
+    --shadow-color: #E8E8E8; */
+}
+
+button.primary {
+    /* padding: 10px;
+    border: solid 1px var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+    border-radius: 8px; */
+}
+
+.feature-div:hover {
+    transform: scale(1.1); /* Increase the size on hover */
+    transition: transform 0.3s ease; /* Add a smooth transition effect */
+}
+.error-popup {
+    position: fixed;
+    bottom: 0;
+    right: 0px;
+    z-index: 5;
+}
+
+.button-top-menu {
+    padding: 10px 20px;
+    background-color: var(--third-color);
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
+    border-radius: 15px;
+    cursor: pointer;
+    display: block;
+    margin: 5px;
+    width: 150px;
+    box-sizing: border-box;
+}
+
+.button-top-menu:hover {
+    transform: scale(1.2);
+    transition: transform 0.3s ease; /* Move the transition property here */
+    background-color: var(--hover-color);
+    color: var(--hover-text-color);
+    border: 2px solid var(--hover-border-color);
+}
+.button-top-menu:active {
+    background-color: var(--highlight-color); /* Set your desired highlight color */
+}
+
+.top-menu {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 10px;
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.page-title {
+    @apply text-2xl font-bold text-white text-center my-16;
+    margin-right: 1%;
+}
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+/* @import './material-theme.css'; */

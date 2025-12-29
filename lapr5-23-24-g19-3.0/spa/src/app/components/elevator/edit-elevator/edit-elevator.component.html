@@ -1,0 +1,88 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" enctype="multipart/form-data">
+    <div>
+        <div class="row">
+            <div>
+                <label for="selectedBuilding">Building:</label>
+                <select
+                    id="selectedBuilding"
+                    formControlName="buildingId"
+                    (change)="onBuildingSelect($event)"
+                    required
+                >
+                    <option *ngFor="let b of buildings" [value]="b.code">
+                        {{ b.code }} &mdash; {{ b.name ?? 'Unnamed' }}
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="selectedElevator">Elevator:</label>
+                <select
+                    id="selectedElevator"
+                    formControlName="elevator"
+                    (change)="onElevatorSelect($event)"
+                    required
+                >
+                    <option
+                        *ngFor="let elevator of elevators"
+                        [value]="elevator.identifier"
+                    >
+                        Elevator
+                        {{ elevator.identifier }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <label for="newSelectedFloors"> Select Floors </label>
+        <select
+            id="newSelectedFloors"
+            formControlName="floors"
+            [(ngModel)]="selectedFloors"
+            multiple
+        >
+            <option *ngFor="let f of floors" [value]="f.floorNumber">
+                <div *ngIf="!!selectedElevator">Floor {{ f.floorNumber }}</div>
+            </option>
+        </select>
+
+        <label for="brand">Brand:</label>
+        <textarea
+            id="brand"
+            formControlName="brand"
+            placeholder="{{ selectedElevator?.brand ?? 'No brand specified' }}"
+        ></textarea>
+
+        <label for="model">Model:</label>
+        <textarea
+            id="model"
+            formControlName="model"
+            placeholder="{{ selectedElevator?.model ?? 'No model specified' }}"
+        ></textarea>
+
+        <label for="serialNumber">Serial Number:</label>
+        <textarea
+            id="serialNumber"
+            formControlName="serialNumber"
+            placeholder="{{
+                selectedElevator?.serialNumber ?? 'No serial number specified'
+            }}"
+        ></textarea>
+
+        <label for="description">Description:</label>
+        <textarea
+            id="description"
+            formControlName="description"
+            placeholder="{{
+                selectedElevator?.description ?? 'No description specified'
+            }}"
+        ></textarea>
+
+        <div class="checkbox-container">
+            <input type="checkbox" formControlName="override" id="overrideConfirmation" />
+            <label for="overrideConfirmation">Override</label>
+        </div>
+
+        <button [disabled]="!form.valid" type="submit">Submit</button>
+    </div>
+</form>

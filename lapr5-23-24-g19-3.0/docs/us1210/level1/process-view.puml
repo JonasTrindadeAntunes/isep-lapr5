@@ -1,0 +1,40 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "<<system>>\n System RobDroneGo" as sys
+
+activate usr
+    usr -> sys : wants to create room
+    activate sys
+        alt building(s) not found
+            sys --> usr: informs building(s) not found
+        else building(s) found
+            sys --> usr : shows buildings and request one
+    deactivate sys
+
+    usr -> sys : chooses building
+    activate sys
+        alt floors(s) not found
+            sys --> usr: informs floors(s) not found
+        else floors(s) found
+            sys --> usr: shows floors and request data
+    deactivate sys
+
+    usr -> sys : choose floor and provides\n room data
+    activate sys
+        alt room bad parameters
+            sys --> usr : inform error
+        else room already exists
+            sys --> usr : inform error
+        else room created successfully
+            sys --> usr : previews created room
+
+            end
+        end
+    end
+    deactivate sys
+deactivate usr
+
+@enduml

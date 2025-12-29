@@ -1,0 +1,28 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "<<system>>\n System RobDroneGo" as sys
+
+activate usr
+    usr -> sys : list building floors with passage
+   activate sys
+       alt building(s) not found
+               sys --> usr : informs building(s) not found
+           else building(s) found
+               sys --> usr : shows buildings and requests one
+           deactivate sys
+
+    usr -> sys : choses building
+    activate sys
+    alt floor(s) with passage(s) not found
+                sys --> usr: informs passage(s) not found
+            else floor(s) with passage(s) found
+
+        sys --> usr : show floors with passage
+    deactivate sys
+deactivate usr
+end
+end
+@enduml

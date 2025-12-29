@@ -1,0 +1,24 @@
+@startuml
+
+skinparam component {
+    FontSize 30
+    BackgroundColor<<Apache>> LightCoral
+    BorderColor<<Apache>> #FF6655
+    FontName Courier
+    BorderColor black
+    BackgroundColor DeepSkyBlue
+    ArrowFontName Impact
+    ArrowColor #FF6655
+    ArrowFontColor #777777
+}
+
+component [<<system>>\nRobDroneGo] as comp
+
+comp -up- "Campus Management API"
+comp -down- "Campus Management UI"
+comp -up- "Fleet Management API"
+comp -down- "Fleet Management UI"
+comp -up- "Task Management API"
+comp -down- "Task Management UI"
+
+@enduml

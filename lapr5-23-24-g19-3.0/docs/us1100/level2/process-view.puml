@@ -1,0 +1,43 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "FE" as ui
+
+participant "MD" as md
+
+activate usr
+    usr -> ui : wants to list floors from a building
+    activate ui
+        ui -> md : GET /buildings
+    alt building(s) not found
+            activate md
+                note right : see us170 documentation
+                md --> ui : 404: error
+                ui --> usr : informs error
+
+    else building(s) found
+            md --> ui : 200: buildings
+            deactivate md
+            ui --> usr : requests building
+        deactivate ui
+
+        usr -> ui : provides building
+        activate ui
+            ui -> md : GET /buildings/{code}/floors
+            activate md
+                note right : see us210 documentation
+                alt success
+                    md --> ui : 200: floors
+                    ui --> usr : lists floors
+                else floor(s) not found
+                    md --> ui : 404: error
+                    ui --> usr : informs floor(s) not found
+                end
+    end
+        deactivate md
+    deactivate ui
+deactivate usr
+
+@enduml

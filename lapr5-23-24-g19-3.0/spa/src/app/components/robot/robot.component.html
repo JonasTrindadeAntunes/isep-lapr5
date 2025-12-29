@@ -1,0 +1,29 @@
+<section class="text-gray-400 bg-gray-900 body-font" style="margin-bottom: 20px">
+    <section
+        class="text-gray-400 body-font bg-gray-900"
+        style="display: flex; margin-left: 25%; margin-right: 25%"
+    >
+        <div class="top-menu">
+            <div>
+                <a [routerLink]="['create']">
+                    <button class="button-top-menu" id="create" type="button">
+                        Create
+                    </button>
+                </a>
+            </div>
+            <div>
+                <a [routerLink]="['inhibit']">
+                    <button class="button-top-menu" id="edit" type="button">
+                        Inhibit
+                    </button>
+                </a>
+            </div>
+            <div>
+                <a [routerLink]="['list']">
+                    <button class="button-top-menu" id="list" type="button">List</button>
+                </a>
+            </div>
+        </div>
+    </section>
+</section>
+<router-outlet></router-outlet>

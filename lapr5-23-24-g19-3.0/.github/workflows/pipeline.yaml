@@ -1,0 +1,106 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  mdr_build:
+    name: MDR Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: MDR Build
+        run: |
+          cd mdr
+          npm install
+          npm run build
+          
+  mdr_test:
+    name: MDR Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: MDR Test
+        run: |
+          cd mdr
+          npm install
+          npm run lint:fix
+          npm test
+
+  spa_build:
+    name: SPA Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: SPA Build
+        run: |
+          cd spa
+          npm install
+          npm run build
+          
+  spa_test:
+    name: SPA Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: SPA Testing
+        run: |
+          cd spa
+          npm install
+          npm run start & npx cypress run
+          npx cypress run --component  
+          
+  mdt_build:
+    name: MDT Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0'
+
+      - name: MDT Build
+        run: |
+          cd mdt
+          dotnet restore
+          dotnet build
+          
+  mdt_test:
+    name: MDT Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0'
+
+      - name: MDT Testing
+        run: |
+          cd mdt.Tests
+          dotnet restore
+          dotnet test

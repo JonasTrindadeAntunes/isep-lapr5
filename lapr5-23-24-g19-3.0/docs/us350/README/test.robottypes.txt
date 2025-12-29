@@ -1,0 +1,20 @@
+{
+    "code":"R01",
+    "brand":"RobotTypeBrandLapr",
+    "model":"ModelLapr",
+    "taskTypes":["SURVEILLANCE"]
+}
+
+{
+    "code":"R02",
+    "brand":"RobotTypeBrandLapr5",
+    "model":"ModelLapr5",
+    "taskTypes":["Delivery"]
+}
+
+{
+    "code":"R03",
+    "brand":"RobotTypeBrandLapr",
+    "model":"ModelLapr",
+    "taskTypes":["SURVEILLANCE"]
+}

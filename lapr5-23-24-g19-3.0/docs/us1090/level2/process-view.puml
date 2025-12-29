@@ -1,0 +1,56 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "FE" as ui
+
+participant "MD" as md
+
+activate usr
+usr -> ui : wants to create floor
+    activate ui
+        ui -> md : GET /buildings
+        alt building(s) not found
+            activate md
+                md --> ui : 404: error
+                note right : see us170 documentation
+            deactivate md
+            ui --> usr : informs error
+        else building(s) found
+            activate md
+                md --> ui : 200: buildings
+            deactivate md
+            ui --> usr : requests building
+        deactivate ui
+
+        usr -> ui : provides building
+        activate ui
+            ui -> md : GET /buildings/{id}/floors
+            activate md
+                md --> ui : floors
+                note right : see us210 documentation,\n\nin this case, if 404 is returned,\nfloors will be an empty list
+            deactivate md
+            ui --> usr : requests data
+        deactivate ui
+
+        usr -> ui : provides data
+        activate ui
+            ui -> md : POST /building/{id}/floors
+            activate md
+            note right : see us190 documentation
+                alt success
+                    md --> ui : 201: floor
+                    ui --> usr : previews created floor information
+                else floor already exists
+                    md --> ui : 422: error
+                    ui --> usr : informs error
+                else bad floor parameters
+                    md --> ui : 422: error
+                    ui --> usr : informs error
+                end
+        end
+        deactivate md
+    deactivate ui
+deactivate usr
+@enduml

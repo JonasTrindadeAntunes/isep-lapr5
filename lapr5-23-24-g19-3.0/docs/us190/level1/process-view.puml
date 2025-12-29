@@ -1,0 +1,21 @@
+@startuml
+autonumber
+
+participant "<<system>>\nSystem RobDroneGo" as sys
+
+[-> sys: POST /building/{id}/floors
+
+activate sys
+alt building not found
+    [<--sys : 404: not found
+else building found
+    alt floor already exists
+        [<--sys : 422: Unprocessable Content
+    else floor doesn't exist
+        [<--sys : 201: Created
+    end
+end
+deactivate sys
+
+
+@enduml

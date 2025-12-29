@@ -1,0 +1,147 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "HTML + CSS + JS" as view
+participant "Controller" as ctrl
+participant "floorService:\nFloorService" as svc
+participant "buildingService:\nBuildingService" as b_svc
+participant "dto:\nBuildingDTO" as dto
+participant "dto:\nFloorAndBuildingDTO" as fb_dto
+participant "dto:\nFloorDTO" as f_dto
+
+participant "HTTP Driver" as http
+
+activate usr
+usr -> view : wants to create floor
+    activate view
+        view -> ctrl : ngOnInit()
+        activate ctrl
+            ctrl -> b_svc : getBuildings()
+            activate b_svc
+                b_svc -> http : get({baseURL}/buildings)
+                activate http
+                    http ->] : GET /buildings
+        alt building(s) not found
+                note right : see us170 documentation
+                http <--] : 404: error
+                http --> b_svc : observable
+                b_svc --> ctrl : error
+                ctrl --> ctrl : buildings = []
+                note bottom : creates alert with the error message
+                ctrl --> view : buildings
+                view --> usr : informs error
+        else building(s) found
+                http <--] : 200: buildings
+            http --> b_svc : observable
+            deactivate http
+
+            loop for each building
+                b_svc --> dto** : create()
+                activate dto
+                    dto --> b_svc : dto
+                deactivate dto
+            end
+
+            b_svc --> ctrl : dto[]
+            deactivate b_svc
+
+            ctrl --> ctrl : buildings = dto[]
+            ctrl --> view : buildings
+            deactivate ctrl
+
+            view --> usr : requests building
+        deactivate view
+
+        usr -> view : provides building
+        activate view
+            view -> ctrl : listFloors()
+            activate ctrl
+                ctrl -> svc : listFloors()
+                activate svc
+                    svc -> http : get({baseURL}/buildings/{buildingCode}/floors)
+                    activate http
+                        http ->]  : GET /buildings/{id}/floors
+                http <--] : 200: floors
+                note right : see us210 documentation
+                    http --> svc : observable
+                    deactivate http
+
+                    loop for each floor
+                        svc --> fb_dto** : create()
+                        activate fb_dto
+                            fb_dto --> svc : dto
+                        deactivate fb_dto
+                    end
+
+                    svc --> ctrl : dto[]
+                deactivate svc
+
+                ctrl --> ctrl : floors = dto[]
+                ctrl --> view : floors
+            deactivate ctrl
+            view --> usr : requests data
+        deactivate view
+
+        usr -> view : provides data
+        activate view
+            view -> ctrl : onSubmit()
+            activate ctrl
+                ctrl --> fb_dto** : create()
+                activate fb_dto
+                    fb_dto --> ctrl : dto
+                deactivate fb_dto
+
+                ctrl -> svc : createFloor(dto)
+                activate svc
+                    svc --> f_dto** : create()
+                    activate f_dto
+                        f_dto --> svc : dto
+                    deactivate f_dto
+
+                    svc -> http : post({baseURL}/buildings/{buildingCode}/floors)
+                    activate http
+                        http -->] : POST /buildings/{id}/floors
+                note right : see us190 documentation
+                alt success
+                    http <--] : 201: floor
+
+                    http --> svc : observable
+
+                    svc --> fb_dto** : create()
+                    activate fb_dto
+                        fb_dto --> svc : dto
+                    deactivate fb_dto
+
+                    svc --> ctrl : dto
+
+                ctrl --> ctrl : listFloors()
+                note bottom : creates alert with the created floor information
+                ctrl --> view : floors
+                view --> usr : previews created floor information
+
+                else floor already exists
+                    http <--] : 422: error
+                    http --> svc : observable
+                    svc --> ctrl : error    
+                    note bottom : creates alert with the error message
+                    ctrl --> view : floors
+                    view --> usr : informs error
+                else bad floor parameters
+                    http <--] : 422: error
+
+                    http --> svc : observable
+                    deactivate http
+                    svc --> ctrl : error
+                    note bottom : creates alert with the error message
+                    deactivate svc
+                    ctrl --> view : floors
+                    deactivate ctrl
+                    view --> usr : informs error
+                    deactivate view
+
+                    deactivate usr
+                end
+            end
+@enduml

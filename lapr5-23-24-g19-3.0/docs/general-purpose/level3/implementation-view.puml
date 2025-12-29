@@ -1,0 +1,117 @@
+@startuml
+
+skinparam component {
+    FontSize 16
+    BackgroundColor<<Apache>> LightCoral
+    BorderColor<<Apache>> #FF6655
+    FontName Courier
+    BorderColor black
+    BackgroundColor DeepSkyBlue
+    ArrowFontName Impact
+    ArrowColor #FF6655
+}
+
+package system {
+    package "Infrastructure" {
+        package "Routes" {
+        }
+
+        package "Persistence" {
+        }
+
+        package "FileSystem Driver" {
+        }
+
+        package "Planning Driver" {
+        }
+        package "MDT Driver" {
+        }
+        package "Auth Driver" {
+        }
+    }
+
+    package "Interface Adapters" {
+        package "Controllers" {
+            package "IControllers" {
+            }
+
+            package "ImplControllers" {
+            }
+        }
+
+        package "Repositories" {
+        }
+
+        package "FileSystemStorage" {
+        }
+
+        package "PlanningAdapter" {
+        }
+        package "MdtAdapter"{
+        }
+    }
+
+    package "Application Services" {
+        package "App Services" {
+            package "IAppServices" {
+            }
+
+            package "ImplAppServices" {
+            }
+
+            package "IRepositories" {
+            }
+
+            package "IFileSystemStorage" {
+            }
+            package "IPlanningAdapter" {
+            }
+            package "IMdtAdapter" {
+            }
+        }
+    }
+
+    package "DTO" {
+        package "IDTO" as dto{
+        }
+    }
+
+    package "Entities/Core/Domain" {
+        package "Aggregates" {
+        }
+
+        package "Value Objects" {
+        }
+
+        package "Services" {
+        }
+    }
+
+    "Routes" .down.> "IControllers"
+    "ImplControllers" .up.|> "IControllers"
+    "ImplControllers" .down.> "IAppServices"
+    "ImplAppServices" .left.|> "IAppServices"
+    "ImplAppServices" .left.> "IRepositories"
+    "ImplAppServices" .right.> "IFileSystemStorage"
+    "ImplAppServices" .right.> "PlanningAdapter"
+    "ImplAppServices" .right.> "MdtAdapter"
+    "ImplAppServices" .down.> "Aggregates"
+    "ImplAppServices" .down.> "Value Objects"
+    "ImplAppServices" .down.> "Services"
+    "ImplAppServices" .up.> dto
+    "ImplControllers" .up.> dto
+    "Repositories" .up.> "Persistence"
+    "Repositories" .up.> "Auth Driver"
+    "Repositories" .down.|> "IRepositories"
+
+    "FileSystemStorage" .up.> "FileSystem Driver"
+    "FileSystemStorage" .down.|> "IFileSystemStorage"
+
+    "PlanningAdapter" .up.> "Planning Driver"
+    "PlanningAdapter" .down.|> "IPlanningAdapter"
+
+    "MdtAdapter" .up.> "MDT Driver"
+    "MdtAdapter" .down.|> "IMdtAdapter"
+}
+
+@enduml

@@ -1,0 +1,110 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "HTML + CSS + JS" as view
+participant "Controller" as ctrl
+participant "BuildingService" as svcb
+participant "ElevatorService" as svce
+participant "dto:\nBuildingDTO" as dto
+participant "dto:\nCreatedElevatorDTO" as dtoce
+participant "HTTP Driver" as http
+
+
+
+activate usr
+    usr -> view : wants to list elevators inside building
+    activate view
+        view -> ctrl : ngOnInit()
+        activate ctrl
+            ctrl -> svcb : getBuildings()
+            activate svcb
+                svcb -> http : get({baseUrl}/buildings)
+                activate http
+                    http ->] : GET /buildings
+
+                    note right : see us170 documentation
+    alt building(s) not found
+                         http <--]: 404: error
+                        http --> svcb : observable
+                        svcb --> ctrl : error
+                        ctrl --> ctrl : buildings = []
+                        note bottom : creates alert with the error message
+                        ctrl --> view : buildings
+                        view --> usr : does not show anything
+
+    else building(s) found
+                        http <--] : 200: buildings
+
+
+                    http --> svcb : observable
+                deactivate http
+
+                loop for each building
+                    svcb --> dto** : create()
+                    activate dto
+                        dto --> svcb : dto
+                    deactivate dto
+                end
+
+                svcb --> ctrl : dto[]
+            deactivate svcb
+            ctrl --> ctrl : buildings = dto[]
+            ctrl --> view : buldings
+        deactivate ctrl
+
+
+
+
+
+        view --> usr : requests building
+    deactivate view
+
+    usr -> view : provides building
+    activate view
+        view -> ctrl : getElevators()
+        activate ctrl
+            ctrl -> svce : getElevators(selectedBuilding)
+            activate svce
+                svce -> http : get({baseUrl}/buildings/${buildingCode}/elevators)
+                activate http
+                    http ->] : GET /buildings/{id}/elevators
+
+                    note right : see us290 documentation
+    alt elevator(s) not found
+                        http <--] : 404: error
+                        http --> svce : observable
+                        svce --> ctrl : error
+                        ctrl --> ctrl : elevators = []
+                        note bottom : creates alert with the error message
+                        ctrl --> view : elevators
+                        view --> usr : does not show anything
+
+    else elevator(s) found
+                        http <--] : 200: elevators
+
+
+                    http --> svce : observable
+                deactivate http
+
+                loop for each elevator
+                    svce --> dtoce** : create()
+                    activate dtoce
+                        dtoce --> svce : dto
+                    deactivate dtoce
+                end
+
+                svce --> ctrl : dto[]
+            deactivate svce
+            ctrl --> ctrl : elevators = dto[]
+            ctrl --> view : elevators
+        deactivate ctrl
+        view --> usr : shows elevators
+    deactivate view
+deactivate usr
+
+end
+end
+
+@enduml

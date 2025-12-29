@@ -1,0 +1,115 @@
+@startuml
+
+skinparam component {
+    FontSize 16
+    BackgroundColor<<Apache>> LightCoral
+    BorderColor<<Apache>> #FF6655
+    FontName Courier
+    BorderColor black
+    BackgroundColor DeepSkyBlue
+    ArrowFontName Impact
+    ArrowColor #FF6655
+}
+
+package system {
+    package "Infrastructure" {
+        package "Routes" {
+            class RouteBuilding
+        }
+
+        package "Persistence" {
+            interface IDBDriver
+            class DBDriver
+        }
+
+
+        DBDriver -right-|> IDBDriver
+    }
+
+
+    package "Interface Adapters" {
+        package "Controllers" {
+            package "IControllers" {
+                interface IControllerFloor
+            }
+
+            package "ImplControllers" {
+                class ControllerFloor
+            }
+            ControllerFloor -up-|> IControllerFloor
+        }
+
+        package "Repositories" {
+            class RepoBuilding
+            class RepoFloor
+        }
+
+
+        RepoFloor .up.> DBDriver
+        RepoBuilding .up.> DBDriver
+
+        RouteBuilding ..> IControllerFloor
+    }
+
+    package "Application Services" {
+        package "App Services" {
+            package "IAppServices" {
+                interface IAppServiceFloor
+            }
+
+            package "ImplAppServices" {
+                class AppServiceFloor
+            }
+
+            AppServiceFloor --|> IAppServiceFloor
+
+            package "IRepositories" {
+                interface IRepoBuilding
+                interface IRepoFloor
+            }
+
+            RepoFloor --|> IRepoFloor
+            RepoBuilding --|> IRepoBuilding
+        }
+
+        ControllerFloor ..> IAppServiceFloor
+        AppServiceFloor .up.> IRepoFloor
+        AppServiceFloor .up.> IRepoBuilding
+    }
+
+    package "DTO" as p_DTO {
+        interface IUpdateFloorDTO
+
+        ControllerFloor ..> IUpdateFloorDTO
+        AppServiceFloor ..> IUpdateFloorDTO
+    }
+
+
+    package "Entities/Core/Domain" {
+        package "Aggregates" {
+            package "Building" as a_building {
+                entity Building <<root>> <<entity>>
+            }
+
+            package "Floor" as a_floor {
+                entity Floor <<root>> <<entity>>
+            }
+        }
+
+        package "Value Objects" {
+            package "Floor" as vo_floor {
+                class FloorDescription
+                class FloorNumber
+            }
+        }
+
+        Floor "*" -right-> "1" Building
+        Floor "1" --> "1" FloorDescription
+        Floor "1" --> "1" FloorNumber
+
+        AppServiceFloor ..> Floor
+    }
+}
+
+@enduml
+

@@ -1,0 +1,123 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "HTML + CSS + JS" as view
+participant "Controller" as ctrl
+participant "BuildingService" as svcb
+participant "PassageService" as svcp
+participant "dto:\nBuildingDTO" as dto
+participant "dto:\nPassageDTO" as dtop
+participant "HTTP Driver" as http
+
+
+
+activate usr
+    usr -> view : wants to list passages between two buildings
+    activate view
+        view -> ctrl : ngOnInit()
+        activate ctrl
+            ctrl -> svcb : getBuildings()
+            activate svcb
+                svcb -> http : get({baseUrl}/buildings)
+                activate http
+                    http ->] : GET /buildings
+                    note right : see us170 documentation
+
+
+    alt building(s) not found
+                        http <--] : 404: error
+                        http --> svcb : observable
+                        svcb --> ctrl : error
+                        ctrl --> ctrl : buildings = []
+                        note bottom : creates alert with the error message
+                        ctrl --> view : buildings
+                        view --> usr : does not list anything
+
+    else building(s) found
+                         http <--] : 200: buildings
+
+
+                    http --> svcb : observable
+                deactivate http
+
+                loop for each building
+                    svcb --> dto** : create()
+                    activate dto
+                        dto --> svcb : dto
+                    deactivate dto
+                end
+
+                svcb --> ctrl : dto[]
+            deactivate svcb
+            ctrl --> ctrl : buildings = dto[]
+            ctrl --> view : buldings
+        deactivate ctrl
+
+
+
+
+
+        view --> usr : shows buildings and requests two
+    deactivate view
+
+    usr -> view : chooses two buildings
+    activate view
+        view -> ctrl : getPassagesBetweenBuildings()
+        activate ctrl
+            ctrl -> svcp : getPassagesBetweenBuildings\n(bCode1, bCode2)
+            activate svcp
+                svcp -> http : get({baseUrl}/passages/\n?building1=${bCode1}&building2=${bCode2})
+                activate http
+                    http ->]  : GET /passages
+
+                    note right : see us260 documentation
+    alt same building
+
+        http <--] : 422: error
+        http --> svcp : observable
+        svcp --> ctrl : error
+        ctrl --> ctrl : passages = []
+        note bottom : creates alert with the error message
+        ctrl --> view : passages
+        view --> usr : informs same building provided
+
+    else different building
+
+        alt passage(s) not found
+                            http <--] : 404: error
+                            http --> svcp : observable
+                            svcp --> ctrl : error
+                            ctrl --> ctrl : passages = []
+                            note bottom : creates alert with the error message
+                            ctrl --> view : passages
+                            view --> usr : does not list anything
+
+        else passage(s) found
+                            http <--] : 200: passages
+
+
+                        http --> svcp : observable
+                    deactivate http
+
+                    loop for each passage
+                        svcp --> dtop** : create()
+                        activate dtop
+                            dtop --> svcp : dto
+                        deactivate dtop
+                    end
+
+                    svcp --> ctrl : dto[]
+                deactivate svcp
+                ctrl --> ctrl : passages = dto[]
+                ctrl --> view : passages
+            deactivate ctrl
+            view --> usr : shows passages between\n two buildings
+        deactivate view
+    deactivate usr
+end
+end
+end
+
+@enduml

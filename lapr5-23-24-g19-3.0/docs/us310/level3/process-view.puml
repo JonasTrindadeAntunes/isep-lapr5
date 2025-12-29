@@ -1,0 +1,74 @@
+@startuml
+autonumber
+
+
+participant "Route" as r
+participant "Controller" as ctrl
+participant "Service" as svc
+participant "room:\nRoom" as room
+participant "Mapper" as map
+participant "dto:\nDTO" as dto
+participant "Repository" as repo
+database "Database" as db
+
+
+[-> r: POST (/buildings/{buildingId}/floors/{floorNumber}/rooms)
+    activate r
+        r -> ctrl : createRoom(req,res,...)
+        activate ctrl
+            ctrl -> svc : createRoom(dto)
+            activate svc
+                svc -> repo : findByCodeNumber(buildingCode,floorNumber)
+                activate repo
+                    repo-> db:findOne(query)
+                    activate db
+                    deactivate db
+                deactivate repo
+
+
+
+
+                    alt floor not found
+                        svc --> ctrl : error
+                        ctrl --> r : error (404)
+                        [<-- r : 404: Not Found
+                    else floor found
+                        svc --> room** : create()
+
+                        activate room
+                        deactivate room
+
+                        alt room not created
+                            svc --> ctrl : error
+                            ctrl --> r : error (422)
+                            [<-- r : 422: Unprocessable Content
+
+                        else room created successfully
+                            svc -> repo : save(room)
+                            activate repo
+                                repo -> db : save()
+                                activate db
+                                deactivate db
+
+
+                                svc -> map : toDTO(room)
+                            deactivate repo
+
+                            activate map
+                                map --> dto** : create(room)
+                                activate dto
+                                    map --> svc : dto
+                                deactivate dto
+                            deactivate map
+
+                            svc --> ctrl : dto
+                            ctrl --> r : dto (201)
+                            [<-- r : 201: Created
+
+                    end
+                end
+            deactivate svc
+        deactivate ctrl
+    deactivate r
+
+@enduml

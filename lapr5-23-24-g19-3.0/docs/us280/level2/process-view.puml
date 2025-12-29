@@ -1,0 +1,31 @@
+@startuml
+autonumber
+
+
+participant "MD" as mdr
+
+
+    [-> mdr: PATCH/PUT  ( /buildings/{idb}/elevators/{ide} )
+        activate mdr
+
+            alt building not found
+                [<-- mdr : 404: Not Found
+            else building found
+
+                alt elevator not found
+                [<-- mdr : 404: Not Found
+                else elevator exists
+
+                    alt  elevator bad params
+                        [<-- mdr : 422: Unprocessable Content
+                    else elevator edited successfully
+                        [<-- mdr : 200: "OK" Successful
+                    end
+                end
+            end
+
+            deactivate mdr
+
+
+@enduml
+

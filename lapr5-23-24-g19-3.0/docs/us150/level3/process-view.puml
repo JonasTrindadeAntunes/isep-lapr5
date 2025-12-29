@@ -1,0 +1,54 @@
+@startuml
+autonumber
+
+participant "Route" as r
+participant "Controller" as ctrl
+participant "Service" as svc
+participant "Repository" as repo
+
+participant "building:\nBuilding" as b
+participant "Mapper" as map
+participant "dto:\nDTO" as dto
+
+participant "DBDriver" as repo
+
+'activate ui
+[-> r : POST /buildings
+activate r
+    r -> ctrl : createBuilding(req,res)
+
+    activate ctrl
+        ctrl -> svc : createBuilding(bodyDTO)
+        activate svc
+            svc --> b ** : create()
+
+            alt building not created
+                svc --> ctrl : error
+                ctrl --> r : error (422)
+                [<-- r : 422: Unprocessable Content
+            else building created successfully
+                svc -> repo : save(building)
+                activate repo
+                    repo -> db : save
+                    activate db
+                    deactivate db
+                deactivate repo
+
+                svc -> map : toDTO(building)
+                activate map
+                    map --> dto **: create(building)
+                    activate dto
+                        map --> svc : dto
+                    deactivate dto
+                deactivate map
+
+                svc --> ctrl : dto
+            deactivate svc
+
+            ctrl --> r : dto (201)
+        deactivate ctrl
+    [<-- r : 201: Created
+deactivate r
+end
+
+@enduml

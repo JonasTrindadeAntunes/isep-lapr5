@@ -1,0 +1,17 @@
+@startuml
+autonumber
+
+participant "<<system>>\nMD" as mdr
+
+    [-> mdr: GET /buildings
+
+    activate mdr
+    alt buildings
+        [<-- mdr : response status 404
+    else buildings sent
+        [<--mdr : response status 200
+    end
+    deactivate mdr
+
+
+@enduml

@@ -1,0 +1,83 @@
+@startuml
+autonumber
+
+
+participant "Route" as r
+participant "Controller" as ctrl
+participant "Service" as svc
+
+participant "robotType:\nRobotType" as b
+participant "Mapper" as map
+participant "dto:\nDTO" as dto
+
+participant "Repository" as repo
+database "Database" as db
+
+
+[->r: POST (/robottypes)
+
+    activate r
+        note right: verify if user is a \nfleet manager
+        alt unkown user
+            [<-- r : 401: Unauthorized
+        else user not authorized
+            [<-- r : 403: Forbidden
+        else user authorized
+
+        r -> ctrl : createRobotType(res,req)
+            activate ctrl
+                ctrl -> svc : createRobotType(dto)
+                activate svc
+
+                    svc -> repo: exists(rCode)
+                    activate repo
+                        repo -> db: findOne(rCode)
+                        activate db
+                        deactivate db
+                    deactivate repo
+
+                    alt robot type already exists
+                    svc --> ctrl : error
+                    ctrl --> r : error (412)
+                        [<-- r : 412: Precondition Failed
+
+                    else robot type not found
+
+
+                    svc --> b **: create()
+                    activate b
+
+                    alt robot type not created
+                        svc --> ctrl : error
+                        deactivate b
+                        ctrl --> r : error (422)
+                        [<-- r : 422: Unprocessable Content
+                    else robot type created successfully
+                    svc -> repo : save(robotType)
+                    activate repo
+                        repo -> db : save()
+                        activate db
+                        deactivate db
+                    deactivate repo
+
+                    svc -> map : toDTO(robotType)
+                    activate map
+                        map --> dto **: create(robotType)
+                        activate dto
+
+                        map --> svc : dto
+                        deactivate dto
+                    deactivate map
+
+                    svc --> ctrl : dto
+                deactivate svc
+
+                ctrl --> r : dto (201)
+            deactivate ctrl
+        [<-- r: 201: Created
+    deactivate r
+    end
+end
+end
+
+@enduml

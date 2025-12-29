@@ -1,0 +1,13 @@
+@startuml
+autonumber
+
+box "  <<system>>\nRobDroneGo"
+participant "MD" as mdr
+
+[-> mdr: GET /buildings/?minFloors={min}&maxFloors={max}
+
+activate mdr
+        [<--mdr : response code 200
+deactivate mdr
+
+@enduml

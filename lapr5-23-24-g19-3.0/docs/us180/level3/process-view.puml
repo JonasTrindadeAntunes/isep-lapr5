@@ -1,0 +1,61 @@
+@startuml
+autonumber
+
+participant "Route" as r
+participant "Controller" as ctrl
+participant "Service" as svc
+
+participant "floor:\nFloor" as floor
+participant "Mapper" as map
+participant "dto:\nDTO" as dto
+
+participant "Repository" as repo
+database "Database" as db
+
+[-> r: GET /buildings/?minFloors={min}&maxFloors={max}
+activate r
+    r -> ctrl : getBuildingsByFloors()
+    activate ctrl
+        ctrl -> svc : getBuildingsByFloors(dto)
+        activate svc
+            svc -> repo : findBuildingsByMinMaxFloors(dto.min, dto.max)
+            activate repo
+                note right: floor repository
+                repo -> db : find()
+                activate db
+                    db --> repo : dto
+                    note right : dto contains buildingCode and floorCount
+                deactivate db
+                repo --> svc : dto
+            deactivate repo
+
+
+            loop for each buildingCode
+                svc -> repo : findByCode(buildingCode)
+                activate repo
+                    note right : building repository
+                    repo -> db : find()
+                    activate db
+                         db --> repo : building
+                    deactivate db
+                    repo --> svc : building
+                deactivate repo
+
+                svc -> map : toDTO(building, floorCount)
+
+                activate map
+                    map --> dto** : create()
+                    note right : dto storing building \ninformation and floor count
+                    activate dto
+                        map --> svc : dto
+                    deactivate dto
+                deactivate map
+            end loop
+                svc --> ctrl : dtoList
+                ctrl --> r : response
+                [<-- r : 200: OK
+        deactivate svc
+    deactivate ctrl
+deactivate r
+
+@enduml

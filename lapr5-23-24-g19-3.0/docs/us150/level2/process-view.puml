@@ -1,0 +1,16 @@
+@startuml
+autonumber
+
+participant "MD" as mdr
+
+[-> mdr: POST /buildings
+
+activate mdr
+    alt building not created
+        [<-- mdr : 422: Unprocessable Content
+    else building created successfully
+        [<-- mdr : 201: Created
+    end
+deactivate mdr
+
+@enduml

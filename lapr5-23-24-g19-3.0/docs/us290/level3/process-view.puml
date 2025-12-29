@@ -1,0 +1,69 @@
+@startuml
+autonumber
+
+
+participant "Route" as r
+participant "Controller" as ctrl
+participant "Service" as svc
+
+
+participant "Mapper" as map
+participant "dto:\nDTO" as dto
+participant "Repository" as repo
+database "Database" as db
+
+
+[-> r : GET /buildings/{id}/elevators
+    activate r
+        r -> ctrl : getElevator(req,res,...)
+        activate ctrl
+            ctrl -> svc : getElevator(id)
+            activate svc
+                svc -> repo : findByCode(buildingCode)
+                activate repo
+                    repo -> db : findOne(bCode)
+                    activate db
+                    deactivate db
+                deactivate repo
+
+                alt building not found
+                    svc --> ctrl : error
+                    ctrl --> r : error (404)
+                     [<-- r : 404: Not Found
+                else building found
+
+                    svc -> repo: inBuilding(building)
+                    activate repo
+                        repo -> db : findOne(bcode)
+                        activate db
+                        deactivate db
+                    deactivate repo
+
+                    alt elevators not found
+                        svc --> ctrl : error
+                        ctrl --> r : error (404)
+                         [<-- r : 404: Not Found
+
+                    else elevators found
+
+                        loop for each elevator
+
+                                svc -> map : toDTO(elevator)
+                            activate map
+                                map --> dto** : create(elevator)
+                                activate dto
+                                    map --> svc : dto
+                                deactivate dto
+                            deactivate map
+                        end loop
+                            svc --> ctrl : dto
+                            ctrl --> r : dto(200)
+                             [<-- r : 200: "OK" Successful
+
+                    end
+                end
+            deactivate svc
+        deactivate ctrl
+    deactivate r
+
+@enduml

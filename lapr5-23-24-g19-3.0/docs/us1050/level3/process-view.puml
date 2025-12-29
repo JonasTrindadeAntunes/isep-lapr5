@@ -1,0 +1,53 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "View" as view
+participant ":Controller" as ctrl
+
+participant "dto:CreatedBuildingDTO" as c_dto
+participant "dto:BuildingDTO" as b_dto
+
+participant ":BuildingService" as svc
+
+participant "HTTP Driver" as http
+
+activate usr
+    usr -> view : wants to create building
+    activate view
+        view --> usr : request data
+    deactivate view
+
+    usr -> view : provides data
+    activate view
+        view -> ctrl : submit()
+        activate ctrl
+            ctrl --> c_dto** : create()
+
+            ctrl -> svc : createBuilding(dto)
+            activate svc
+                svc -> http : post(API_URL/buildings, dto)
+                activate http
+
+                    http ->] : POST /buildings
+                    http <--] : building
+                deactivate http
+
+                svc --> b_dto** : create()
+                svc --> ctrl : dto
+            deactivate svc
+alt create error
+
+            ctrl --> view : error
+            view --> usr : inform error
+else success
+            ctrl --> view : building
+        deactivate ctrl
+
+        view --> usr : shows created building
+    deactivate view
+end
+
+deactivate usr
+@enduml

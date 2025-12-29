@@ -1,0 +1,52 @@
+@startuml
+autonumber
+
+participant "Route" as r
+participant "Controller" as ctrl
+participant "Service" as svc
+participant "Repository" as repo
+
+participant "Mapper" as map
+participant "dto:\nDTO" as dto
+
+[-> r : GET /passages
+activate r
+
+    r -> ctrl : getPassages(req,res)
+    activate ctrl
+
+        ctrl -> svc : getPassages()
+        activate svc
+
+            svc -> repo : findaAll()
+            activate repo
+                repo ->] : find()
+            deactivate repo
+
+            alt passages not found
+                svc --> ctrl : error
+                ctrl --> r : error (404)
+                [<-- r : 404: Not found
+            else passages found
+                loop for each passage
+                    svc -> map : toDTO(passage)
+
+                    activate map
+                        map --> dto** : create(passage)
+                        ' activate dto
+                        ' deactivate dto
+                        map --> svc : dto
+                    deactivate map
+                end loop
+
+            svc --> ctrl : dto
+        deactivate svc
+
+        ctrl --> r : dto(200)
+    deactivate ctrl
+
+    [<-- r : 200: "OK" Successful
+deactivate r
+end
+
+@enduml

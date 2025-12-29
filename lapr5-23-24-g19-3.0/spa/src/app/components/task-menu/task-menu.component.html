@@ -1,0 +1,68 @@
+<section class="text-gray-400 bg-gray-900 body-font" style="margin-bottom: 20px">
+    <section
+        class="text-gray-400 body-font bg-gray-900"
+        style="display: flex; margin-left: 25%; margin-right: 25%"
+    >
+        <div class="top-menu">
+            <div>
+                <a [routerLink]="['trace-route']">
+                    <button class="button-top-menu" id="trace-route" type="button">
+                        Trace Route
+                    </button>
+                </a>
+            </div>
+            <div>
+                <a [routerLink]="['create']">
+                    <button
+                        class="button-top-menu"
+                        id="create-task-surveillance"
+                        type="button"
+                    >
+                        Create Task
+                    </button>
+                </a>
+            </div>
+            <div>
+                <a [routerLink]="['approve-reject']">
+                    <button
+                        class="button-top-menu"
+                        id="create-task-delivery"
+                        type="button"
+                    >
+                        Approve/Reject Task
+                    </button>
+                </a>
+            </div>
+            <div>
+                <a [routerLink]="['list-pending']">
+                    <button class="button-top-menu" id="list-pending" type="button">
+                        List Pending Tasks
+                    </button>
+                </a>
+            </div>
+            <div>
+                <a [routerLink]="['sequence']">
+                    <button
+                        class="button-top-menu"
+                        id="create-task-delivery"
+                        type="button"
+                    >
+                        Sequence Tasks
+                    </button>
+                </a>
+            </div>
+            <div>
+                <a [routerLink]="['filter']">
+                    <button
+                        class="button-top-menu"
+                        id="create-task-delivery"
+                        type="button"
+                    >
+                        Filter tasks
+                    </button>
+                </a>
+            </div>
+        </div>
+    </section>
+</section>
+<router-outlet></router-outlet>

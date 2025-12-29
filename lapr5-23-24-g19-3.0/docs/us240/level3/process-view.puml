@@ -1,0 +1,81 @@
+@startuml
+autonumber
+
+participant "Route" as r
+participant "Controller" as ctrl
+participant "Service" as svc
+
+participant "passage:\nPassage" as passage
+participant "Mapper" as map
+participant "dto:\nDTO" as dto
+participant "Repository" as repo
+database "Database" as db
+
+[--> r : POST /passages
+activate r
+    r ---> ctrl : createPassage()
+    activate ctrl
+
+        ctrl -> svc : createPassage(dto)
+        activate svc
+
+            svc -> repo : findByCodeNumber(floorNumber1,buildingCode1)
+            activate repo
+                repo ->db : find()
+                activate db
+                deactivate db
+            deactivate repo
+
+            svc -> repo : findByCodeNumber(floorNumber2,buildingCode2)
+            activate repo
+                repo ->db : find()
+                activate db
+                deactivate db
+            deactivate repo
+            alt floor not found
+            svc --> ctrl : error
+                ctrl --> r : error (404)
+                [<--r : error(404)
+            else
+                note right of svc
+                    check if floors belong to the same building
+                end note
+            alt same building
+                svc --> ctrl : error
+                ctrl --> r : error (422)
+                [<--r : error(422)
+            else different buildings
+                    svc --> passage** : create(floor1,floor2)
+
+                svc -> repo : save(passage)
+                activate repo
+                    repo -> db: save(passage)
+                    activate db
+                    deactivate db
+                deactivate repo
+
+            alt passage not created
+                svc --> ctrl : error
+                ctrl --> r : error (422)
+                [<--r: error(422)
+
+            else passage created successfully
+                svc -> map : toDTO(passage)
+                activate map
+                    map --> dto** : create(passage)
+                    activate dto
+                        map --> svc : dto
+                    deactivate dto
+                deactivate map
+
+                svc --> ctrl : dto
+                deactivate svc
+                ctrl --> r : dto (201)
+                deactivate ctrl
+                [<--r : dto(201)
+            end
+            end
+            end
+deactivate r
+
+@enduml

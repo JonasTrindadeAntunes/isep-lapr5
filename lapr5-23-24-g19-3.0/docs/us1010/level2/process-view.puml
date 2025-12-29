@@ -1,0 +1,55 @@
+@startuml
+
+autonumber
+
+actor "Fleet Manager" as usr
+
+participant "FE" as ui
+
+participant "MD" as md
+
+activate usr
+    usr -> ui : wants to create robot
+    activate ui
+        ui -> md : GET /robottypes
+        activate md
+alt robot type(s) not found
+            note right : see list-robotTypes documentation
+            md --> ui : 404: error
+            ui --> usr : informs error
+else robot type(s) found
+            md --> ui : 200 : robotTypes
+        deactivate md
+        ui --> usr : requests robot type
+    deactivate ui
+
+    usr -> ui : provides robot type
+    activate ui
+        ui -> md : GET /robots
+        activate md
+            md --> ui : robots
+            note right : see us380 documentation,\n\nin this case, if 404 is returned,\nrobots will be an empty list
+        deactivate md
+        ui --> usr : requests data
+    deactivate ui
+
+    usr -> ui : provides data
+    activate ui
+        ui -> md : POST /robots
+
+        activate md
+        note right of md : see us360 documentation
+alt bad robot parameters
+            md --> ui : 422: error
+            ui --> usr : informs error
+else success
+            md --> ui : 201: robot
+            ui --> usr : previews created robot
+        deactivate md
+
+    deactivate ui
+deactivate usr
+end
+end
+
+@enduml

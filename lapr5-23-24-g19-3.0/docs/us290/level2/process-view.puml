@@ -1,0 +1,26 @@
+@startuml
+autonumber
+
+participant "MD" as mdr
+
+
+
+
+        [-> mdr: GET /buildings/{id}/elevators
+        activate mdr
+            alt building not found
+                    [<-- mdr : 404: Not Found
+            else building found
+                alt elevators not found
+                    [<-- mdr : 404: Not Found
+                else elevators sent
+                    [<-- mdr : 200: "OK" Successful
+                end
+            end
+            deactivate mdr
+
+    deactivate mdr
+
+
+@enduml
+

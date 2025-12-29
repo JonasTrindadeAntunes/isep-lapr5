@@ -1,0 +1,109 @@
+@startuml
+autonumber
+
+
+participant "Route" as r
+participant "Controller" as ctrl
+participant "Service" as svc
+
+participant "Mapper" as map
+participant "dto:\nIClientWithoutPasswordDTO" as cp_dto
+participant "dto:\nIClientEmailDTO" as dto
+participant "dto:\nIDeletedClientDTO" as d_dto
+
+participant "AuthRepository" as a_repo
+participant "ClientRepository" as repo
+
+database "Database" as db
+
+[-> r: GET (/clients/{email})
+activate r
+    r -> ctrl : getClient(req,res,...)
+    activate ctrl
+        ctrl -> svc : getClient(email)
+        activate svc
+            svc -> repo : find(email)
+            activate repo
+                repo -> db : find()
+                activate db
+                    db --> repo : client
+                deactivate db
+                repo --> svc : client
+            deactivate repo
+alt client not found
+            svc --> ctrl : error
+            ctrl --> r : response 404
+            [<--r : 404: Not Found
+else client found
+            svc -> map : toDTO(client)
+            activate map
+                map --> cp_dto **: create()
+                activate cp_dto
+                    map --> svc : dto
+                deactivate cp_dto
+            deactivate map
+            svc --> ctrl : dto
+        deactivate svc
+        ctrl --> r : response 200
+    deactivate ctrl
+    [<--r: 200: OK
+deactivate r
+end
+
+[-> r: DELETE (/clients/{email})
+activate r
+    r -> ctrl : deleteClient(req,res,...)
+    activate ctrl
+        ctrl --> dto** : create()
+
+        activate dto
+        dto --> ctrl : dto
+        deactivate dto
+
+        ctrl -> svc : deleteClient(dto)
+        activate svc
+            svc -> repo : find(email)
+            activate repo
+                repo -> db : find()
+                activate db
+                    db --> repo : client
+                deactivate db
+                repo --> svc : client
+            deactivate repo
+alt client not found
+                svc --> ctrl : error
+                ctrl --> r : response 404
+                [<--r : 404: Not found
+else success
+
+            svc -> a_repo: deleteUser(email)
+            activate a_repo
+            deactivate a_repo
+
+            svc -> repo : delete(client)
+            activate repo
+                repo -> db : delete()
+                activate db
+
+                deactivate db
+                repo --> svc : true
+
+            deactivate repo
+
+            svc --> d_dto** : create()
+
+            activate d_dto
+                d_dto --> svc : dto
+            deactivate d_dto
+
+
+            svc --> ctrl : dto
+        deactivate svc
+        ctrl --> r : response 200
+    deactivate ctrl
+    [<--r: 200: OK
+deactivate r
+end
+
+
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+autonumber
+
+participant "<<system>>\nRobDroneGo" as sys
+
+[-> sys: GET /buildings
+
+activate sys
+alt buildings not found
+    [<--sys : response status 404
+else buildings sent
+    [<--sys : response status 200
+end
+deactivate sys
+
+
+@enduml

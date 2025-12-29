@@ -1,0 +1,67 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "FE" as ui
+participant "MD" as md
+
+activate usr
+    usr -> ui : wants to create elevator
+    activate ui
+        ui -> md : GET /buildings
+        note right of md : see US 170 documentation
+        activate md
+
+         alt building(s) not found
+                md --> ui : 404: error
+                ui --> usr :  informs building(s) not found
+         else building(s) found
+
+            md --> ui : 200: buildings
+            deactivate md
+
+        ui --> usr : shows buildings and request one
+    deactivate ui
+
+    usr -> ui : chooses building
+    activate ui
+        ui -> md : GET /buildings/{id}/floors
+        note right of md : see US 210 documentation
+        activate md
+
+        alt floor(s) not found
+                md --> ui : 404: error
+                ui --> usr :  informs floor(s) not found
+        else floor(s) found
+
+
+            md --> ui : 200: floors
+        deactivate md
+
+        ui --> usr : shows floors and request data
+    deactivate ui
+
+    usr -> ui: chooses floors and provides\n elevator data
+    activate ui
+        ui -> md : POST /buildings/{id}/elevators
+        note right of md : see US 270 documentation
+        activate md
+
+            alt elevator not created
+                 md --> ui : 422: error
+                 ui --> usr :  informs error
+            else elevator created successfully
+
+
+
+            md --> ui : 201: elevator
+        deactivate md
+        ui --> usr : preview elevator
+        end
+    end
+end
+    deactivate ui
+deactivate usr
+
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+autonumber
+
+actor "Client" as usr
+
+participant "<<system>>\n System RobDroneGo" as sys
+
+activate usr
+usr -> sys : wants to register a new surveillance task
+    activate sys
+        sys --> usr : requests building
+    deactivate sys
+    usr -> sys : provides building
+
+    activate sys
+        sys --> usr : requests floor
+    deactivate sys
+
+    usr -> sys : provides floor
+    activate sys
+    sys --> usr : requests task details
+    deactivate sys
+
+    usr -> sys : provides task details
+    activate sys
+    sys --> usr : previews newly created task
+    deactivate sys
+deactivate usr
+
+@enduml

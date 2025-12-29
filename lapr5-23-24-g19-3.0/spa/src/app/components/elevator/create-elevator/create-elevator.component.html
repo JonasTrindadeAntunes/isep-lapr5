@@ -1,0 +1,79 @@
+<form
+    [formGroup]="createElevatorForm"
+    (ngSubmit)="onSubmit()"
+    enctype="multipart/form-data"
+>
+    <div>
+        <div class="row">
+            <div>
+                <label for="selectedBuilding">Select Building</label>
+                <select
+                    id="selectedBuilding"
+                    formControlName="buildingId"
+                    [(ngModel)]="selectedBuilding"
+                    (ngModelChange)="listFloors()"
+                    required
+                >
+                    <option *ngFor="let building of buildings" [value]="building.code">
+                        {{ building.code }}
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="selectedFloors"> Select Floors </label>
+                <select
+                    id="selectedFloors"
+                    formControlName="floors"
+                    [(ngModel)]="selectedFloors"
+                    multiple
+                    required
+                >
+                    <option *ngFor="let floor of floors" [value]="floor.floorNumber">
+                        {{ floor.floorNumber }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div>
+                <label for="brand">Brand:</label>
+                <input id="brand" type="text" formControlName="brand" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div>
+                <label for="model">Model:</label>
+                <input id="model" type="text" formControlName="model" />
+            </div>
+            <div>
+                <label for="serialNumber">Serial Number:</label>
+                <input id="serialNumber" type="text" formControlName="serialNumber" />
+            </div>
+        </div>
+
+        <div class="row">
+            <label for="description">Description:</label>
+            <textarea id="description" formControlName="description"></textarea>
+        </div>
+    </div>
+
+    <button id="submitElevator" type="submit" [disabled]="createElevatorForm.invalid">
+        Submit
+    </button>
+</form>
+
+<div class="elevator-list">
+    <div *ngIf="createdElevator" class="elevator-card p">
+        <h2>Created Elevator</h2>
+        <p>Building ID: {{ createdElevator.buildingId }}</p>
+        <p>Identifier: {{ createdElevator.identifier }}</p>
+        <p>Floors: {{ createdElevator.floors.join(', ') }}</p>
+        <p>Brand: {{ createdElevator.brand }}</p>
+        <p>Model: {{ createdElevator.model }}</p>
+        <p>Serial Number: {{ createdElevator.serialNumber }}</p>
+        <p>Description: {{ createdElevator.description }}</p>
+    </div>
+</div>

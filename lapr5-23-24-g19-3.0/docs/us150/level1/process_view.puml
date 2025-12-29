@@ -1,0 +1,16 @@
+@startuml
+autonumber
+
+participant "<<system>>\nSystem RobDroneGo" as sys
+
+[-> sys: POST /buildings
+
+activate sys
+    alt building not created
+        [<-- sys : 422: Unprocessable Content
+    else building created successfully
+        [<-- sys : 201: Created
+    end
+deactivate sys
+
+@enduml

@@ -1,0 +1,113 @@
+<form
+    id="passageForm"
+    [formGroup]="routeForm"
+    (ngSubmit)="submitForm()"
+    enctype="multipart/form-data"
+>
+    <div class="introduce">
+        <div class="row">
+            <div>
+                <label for="buildingCode">Select Building</label>
+                <select
+                    id="building1"
+                    formControlName="buildingStart"
+                    (change)="onBuilding1Selected($event)"
+                    required
+                >
+                    <option *ngFor="let building of buildings" [value]="building.code">
+                        {{ building.code }}
+                    </option>
+                </select>
+            </div>
+            <div>
+                <label for="floor1">Select Floor</label>
+                <select
+                    id="floor1"
+                    formControlName="floorStart"
+                    (change)="onFloor1Selected($event)"
+                    required
+                >
+                    <ng-container *ngIf="floors1.length == 0; else floorsOptions">
+                        <option style="color: red" disabled>No floors found</option>
+                    </ng-container>
+                    <ng-template #floorsOptions>
+                        <option *ngFor="let floor of floors1" [value]="floor.floorNumber">
+                            {{ floor.floorNumber }}
+                        </option>
+                    </ng-template>
+                </select>
+            </div>
+            <div>
+                <label for="room1">Select Room</label>
+                <select id="room1" formControlName="roomStart" required>
+                    <ng-container *ngIf="rooms1.length == 0; else roomsOptions1">
+                        <option style="color: red" disabled>No rooms found</option>
+                    </ng-container>
+                    <ng-template #roomsOptions1>
+                        <option *ngFor="let room of rooms1" [value]="room.name">
+                            {{ room.name }}
+                        </option>
+                    </ng-template>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div>
+                <label for="buildingCode">Select Building</label>
+                <select
+                    id="building2"
+                    formControlName="buildingGoal"
+                    (change)="onBuilding2Selected($event)"
+                    required
+                >
+                    <option *ngFor="let building of buildings" [value]="building.code">
+                        {{ building.code }}
+                    </option>
+                </select>
+            </div>
+            <div>
+                <label for="floor2">Select Floor</label>
+                <select
+                    id="floor2"
+                    formControlName="floorGoal"
+                    (change)="onFloor2Selected($event)"
+                    required
+                >
+                    <ng-container *ngIf="floors2.length == 0; else floorsOptions2">
+                        <option style="color: red" disabled>No floors found</option>
+                    </ng-container>
+                    <ng-template #floorsOptions2>
+                        <option *ngFor="let floor of floors2" [value]="floor.floorNumber">
+                            {{ floor.floorNumber }}
+                        </option>
+                    </ng-template>
+                </select>
+            </div>
+            <div>
+                <label for="room2">Select Room</label>
+                <select id="room2" formControlName="roomGoal" required>
+                    <ng-container *ngIf="rooms2.length == 0; else roomsOptions2">
+                        <option style="color: red" disabled>No rooms found</option>
+                    </ng-container>
+                    <ng-template #roomsOptions2>
+                        <option *ngFor="let room of rooms2" [value]="room.name">
+                            {{ room.name }}
+                        </option>
+                    </ng-template>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="criteria">
+        <label for="criteria">Select criterion</label>
+        <select id="criteria" formControlName="criterion">
+            <option *ngFor="let crit of criteria" [value]="crit">
+                {{ crit }}
+            </option>
+        </select>
+    </div>
+    <button id="submitPassage" type="submit" [disabled]="this.routeForm.invalid">
+        Submit
+    </button>
+</form>

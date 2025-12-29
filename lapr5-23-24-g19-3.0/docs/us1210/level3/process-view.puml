@@ -1,0 +1,170 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "HTML + CSS + JS" as view
+participant "Controller" as ctrl
+participant "BuildingService" as svcb
+participant "FloorService" as svcf
+participant "RoomService" as svcr
+participant "dto:\nBuildingDTO" as dto
+participant "dto:\nFloorAndBuildingDTO" as dtofb
+participant "dto:\nRoomDTO" as dtor
+participant "dto:\nCreatedRoomDTO" as dtocr
+participant "HTTP Driver" as http
+
+
+
+activate usr
+usr -> view : wants to create room
+    activate view
+        view -> ctrl : ngOnInit()
+        activate ctrl
+            ctrl -> svcb : getBuildings()
+            activate svcb
+                svcb -> http : get({baseURL}/buildings)
+                activate http
+                    http ->] : GET /buildings
+        alt building(s) not found
+
+                note right : see us170 documentation
+                 http <--] : 404: error
+                http --> svcb : observable
+                svcb --> ctrl : error
+                ctrl --> ctrl : buildings = []
+                note bottom : creates alert with the error message
+                ctrl --> view : buildings
+                view --> usr : does not list anything
+        else building(s) found
+                http <--] : 200: buildings
+
+            http --> svcb : observable
+            deactivate http
+
+            loop for each building
+                svcb --> dto** : create()
+                activate dto
+                    dto --> svcb : dto
+                deactivate dto
+            end
+
+            svcb --> ctrl : dto[]
+            deactivate svcb
+
+            ctrl --> ctrl : buildings = dto[]
+            ctrl --> view : buildings
+            deactivate ctrl
+
+
+
+
+            view --> usr : shows buildings and \nrequest one
+        deactivate view
+
+        usr -> view : chooses building
+        activate view
+            view -> ctrl : listFloors()
+            activate ctrl
+                ctrl -> svcf : listFloors()
+                activate svcf
+                    svcf -> http : get({baseURL}/buildings/{buildingCode}/floors)
+                    activate http
+                        http ->] : GET /buildings/{id}/floors
+
+             alt floors(s) not found
+
+                    note right : see us210 documentation
+                    http <--] : 404: error
+                    http --> svcf : observable
+                    svcf --> ctrl : error
+                    ctrl --> ctrl : floors = []
+                    note bottom : creates alert with the error message
+                    ctrl --> view : floors
+                    view --> usr : does not list anything
+             else floor(s) found
+                http <--] : 200: floors
+
+                    http --> svcf : observable
+                    deactivate http
+
+                    loop for each floor
+                        svcf --> dtofb** : create()
+                        activate dtofb
+                            dtofb --> svcf : dto
+                        deactivate dtofb
+                    end
+
+                    svcf --> ctrl : dto[]
+                deactivate svcf
+
+                ctrl --> ctrl : floors = dto[]
+                ctrl --> view : floors
+            deactivate ctrl
+
+
+
+
+            view --> usr : shows floors and \nrequest data
+        deactivate view
+
+        usr -> view : chooses floors and\nprovides room data
+        activate view
+            view -> ctrl : onSubmit()
+            activate ctrl
+                ctrl --> dtor** : create()
+                activate dtor
+                    dtor --> ctrl : dto
+                deactivate dtor
+
+                ctrl -> svcr : createRoom(buildingCode, floorNumber, dto)
+                activate svcr
+
+                    svcr -> http : post({baseURL}/buildings/{buildingCode}/floors/{floorNumber}/rooms)
+                    activate http
+                        http ->] : POST /buildings/{buildingId}/floors/{floorNumber}/rooms
+
+                note right : see us310 documentation
+                alt room bad parameters
+                    http <--] : 422: error
+                    http --> svcr : observable
+                    svcr --> ctrl : error
+                    note bottom : creates alert with the error message
+                    ctrl --> view : createdRoom
+                    view --> usr : informs error
+
+                else room already exists
+                    http <--] : 422: error
+                                        http --> svcr : observable
+                                        svcr --> ctrl : error
+                                        note bottom : creates alert with the error message
+                                        ctrl --> view : createdRoom
+                                        view --> usr : informs error
+                else room created successfully
+
+                    http <--] : 201: room
+                    http --> svcr : observable
+
+                    svcr --> dtocr** : create()
+                    activate dtocr
+                        dtocr --> svcr : dto
+                    deactivate dtocr
+
+                    svcr --> ctrl : dto
+
+                    ctrl --> ctrl : createdRoom = dto
+                    note bottom : creates alert with success message
+                    ctrl --> view : createdRoom
+                    view --> usr : previews created \nroom information
+
+
+                    deactivate http
+                    deactivate svcr
+                    deactivate ctrl
+                    deactivate view
+
+                    deactivate usr
+                end
+            end
+            end
+@enduml

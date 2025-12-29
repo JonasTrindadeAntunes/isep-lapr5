@@ -1,0 +1,69 @@
+@startuml
+autonumber
+
+actor "Task Manager" as usr
+
+participant "FE" as ui
+participant "MD" as md
+participant "Planning" as pl
+
+activate usr
+    usr -> ui : Wants to list paths between two \nbuildings following a specific criteria
+    activate ui
+            ui -> md : GET /buildings
+            activate md
+                note right of md : see US 170 documentation
+
+            alt building(s) not found
+                md --> ui: 404: error
+                ui --> usr: informs building(s) not found
+            else building(s) found
+                md --> ui : 200: buildings
+                deactivate md
+
+            ui --> usr : shows buildings and request two
+        deactivate ui
+
+        usr -> ui : chooses buildings
+        activate ui
+            ui -> md : GET /buildings/{id}/floors
+            activate md
+                note right of md : see US 210 documentation
+
+                alt floor(s) not found
+                    md --> ui: 404: error
+                    ui --> usr: informs floor(s) not found
+                else floor(s) found
+                    md --> ui : 200: floors
+                    deactivate md
+
+            ui --> usr : shows floors and request two
+        deactivate ui
+
+        usr -> ui: chooses floors
+        activate ui
+            ui -> md : GET (/buildings/{buildingId}/floors/{floorNumber}/rooms)
+            activate md
+
+
+                alt room not found
+                    md --> ui: 404: error
+                    ui --> usr: informs room(s) not found
+                else room(s) found
+                    md --> ui : 200: rooms
+                    deactivate md
+                    ui --> usr : shows rooms and request two
+
+        deactivate ui
+
+                usr -> ui: chooses rooms
+                activate ui
+                    ui --> usr: list paths
+                deactivate ui
+                    end
+                end
+            end
+        deactivate ui
+    deactivate usr
+
+@enduml

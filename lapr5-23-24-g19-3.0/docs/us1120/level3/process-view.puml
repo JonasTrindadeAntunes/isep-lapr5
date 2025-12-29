@@ -1,0 +1,118 @@
+@startuml
+autonumber
+
+actor "Campus Manager" as usr
+
+participant "HTML + CSS + JS" as view
+participant "Controller" as ctrl
+participant "BuildingService" as svc
+participant "FloorService" as floorSvc
+
+participant "BuildingDTO" as dto
+participant "FloorDTO" as floorDTO
+participant "FloorMapDTO" as floorMapDTO
+
+participant "HTTP Driver" as http
+
+
+activate usr
+usr -> view : wants to list buildings
+    activate view
+        view -> ctrl : ngOnInit()
+        activate ctrl
+            ctrl -> svc : getBuildings()
+            activate svc
+                svc -> http : get({baseURL}/buildings)
+                activate http
+                    http ->] : GET /buildings
+                note right : see us170 documentation
+                ]--> http : 200
+                http --> svc : observable
+                deactivate http
+                loop for each building
+                    svc --> dto** : create()
+                    activate dto
+                        dto --> svc : dto
+                    deactivate dto
+                end
+                svc --> ctrl : buildings
+        alt buildings empty
+                deactivate svc
+                ctrl --> view : error message
+                view --> usr : shows error message
+        else building(s) found
+            ctrl --> view : buildings
+            deactivate ctrl
+            view --> usr : shows buildings
+            deactivate
+        deactivate view
+        usr -> view : chooses building
+        activate view
+            view -> ctrl : listFloors()
+            activate ctrl
+            deactivate dto
+                ctrl -> floorSvc : listFloors()
+                activate floorSvc
+                    floorSvc -> http : get({baseURL}/buildings/{buildingCode}/floors)
+                    activate http
+                        http ->] : GET /buildings/{id}/floors
+                ]--> http : 200
+                note right : see us210 documentation
+                    http --> floorSvc : observable
+                    deactivate http
+                    loop for each floor
+                        floorSvc --> floorDTO** : create()
+                        activate floorDTO
+                            floorDTO --> floorSvc : floorDTO
+                        deactivate floorDTO
+                    end
+                    floorSvc --> ctrl : floors
+                    alt floors is empty
+                        ctrl --> view : floors not found
+                        view --> usr : shows error
+                    else floors found
+                deactivate floorSvc
+
+                ctrl --> view : floors
+            deactivate ctrl
+            view --> usr : requests floor
+        deactivate view
+
+        usr -> view : chooses floor and uploads Map
+        activate view
+            view -> ctrl : buildingData
+            activate ctrl
+                ctrl --> floorMapDTO** : create()
+                activate floorMapDTO
+                    floorMapDTO --> ctrl : floorMapDTO
+                deactivate floorMapDTO
+                ctrl -> floorSvc : editBuilding(floorMapDTOs)
+                activate floorSvc
+                    floorSvc -> http : patch({baseURL}/buildings/{buildingCode}/floors/{floorNumber}/map
+                    activate http
+                        http ->] : PATCH /buildings/{buildingCode}
+                            ]--> http : status code
+                note right : see us160 documentation
+                    http --> floorSvc : observable
+                    deactivate http
+                    floorSvc --> floorMapDTO** : create()
+                    activate floorMapDTO
+                        floorMapDTO --> floorSvc : floorMapDTO
+                    deactivate floorMapDTO
+                    alt status==200
+                    floorSvc --> ctrl : map
+
+                ctrl --> view : map
+                view --> usr : shows success message
+                else
+                    floorSvc --> ctrl : error message
+                    deactivate floorSvc
+                ctrl --> view : error message
+                deactivate ctrl
+            view --> usr : shows error message
+            deactivate view
+        deactivate usr
+    end
+    end
+    end
+@enduml

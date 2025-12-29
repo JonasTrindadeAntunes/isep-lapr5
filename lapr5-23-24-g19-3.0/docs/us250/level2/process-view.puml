@@ -1,0 +1,16 @@
+@startuml
+autonumber
+
+participant "MD" as md
+
+[--> md: PATCH|PUT /passages
+
+activate md
+    alt buildings/floors not found
+        [<-- sys : 404
+    else passage edited successfully
+        [<-- sys : 200
+    end
+deactivate md
+
+@enduml

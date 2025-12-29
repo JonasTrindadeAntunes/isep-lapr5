@@ -1,0 +1,24 @@
+@startuml
+autonumber
+
+actor "Task Manager" as usr
+
+participant "<<system>>\n RobDroneGo" as sys
+
+activate usr
+    usr -> sys : wants to approve or reject a task
+    activate sys
+        alt task(s) not found
+            sys --> usr : inform no pending tasks available
+        else task(s) found
+        sys --> usr : shows tasks & requests one
+    deactivate sys
+
+    usr -> sys : approves/rejects chosen task
+    activate sys
+        sys --> usr : shows updated task
+    deactivate sys
+deactivate usr
+end
+
+@enduml
